@@ -1,5 +1,6 @@
 from tkinter import *
 import pyscreenshot
+from tkinter import colorchooser
 
 
 class Paintk:
@@ -34,6 +35,12 @@ class Paintk:
             Button(self.bar_menu, bg=i,
                    width=1, height=1, command=lambda col=i: self.select_color(col)).pack(side=LEFT)
 
+        self.label_color_choose = Label(self.bar_menu, text="  Color choose: ", fg="white", bg="#3b3b3b")
+        self.label_color_choose.pack(side=LEFT)
+
+        self.btn_choose_color = Button(self.bar_menu, image=self.img_square, bd=0, command=self.selected_color)
+        self.btn_choose_color.pack(side=LEFT)
+
         self.tex_pen_size = Label(self.bar_menu, text="  Size:  ", fg="white", bg="#3b3b3b")
         self.tex_pen_size.pack(side=LEFT)
         self.pen_size = Spinbox(self.bar_menu, from_=1, to=50)
@@ -45,21 +52,24 @@ class Paintk:
         self.btn_line.pack(side=LEFT)
         self.btn_oval = Button(self.bar_menu, image=self.img_oval, bd=0, width=30, height=30, command=self.brush_oval)
         self.btn_oval.pack(side=LEFT)
-        self.btn_erase = Button(self.bar_menu, image=self.img_erase, bd=0, width=30, height=30, command=self.brush_erase)
+        self.btn_erase = Button(self.bar_menu, image=self.img_erase, bd=0, width=30, height=30,
+                                command=self.brush_erase)
         self.btn_erase.pack(side=LEFT)
-        self.btn_square = Button(self.bar_menu, image=self.img_square, bd=0, width=30, height=30, command=None)
-        self.btn_square.pack(side=LEFT)
+        #self.btn_square = Button(self.bar_menu, image=self.img_square, bd=0, width=30, height=30, command=None)
+        #self.btn_square.pack(side=LEFT)
 
         self.label_option = Label(self.bar_menu, text="  Options:  ", fg="white", bg="#3b3b3b")
         self.label_option.pack(side=LEFT)
         self.btn_new = Button(self.bar_menu, image=self.img_new, bd=0, width=30, height=30, command=self.clear)
         self.btn_new.pack(side=LEFT)
-        self.btn_save = Button(self.bar_menu, image=self.img_save, bd=0, width=30, height=30, command=None)
+        self.btn_save = Button(self.bar_menu, image=self.img_save, bd=0, width=30, height=30, command=self.save_canvas)
         self.btn_save.pack(side=LEFT)
 
         self.area_draw = Canvas(self.window, bg="gainsboro", height=600)
         self.area_draw.pack(fill="both")
         self.area_draw.bind("<B1-Motion>", self.draw)
+        self.window.bind("<F4>", self.clear)
+        self.window.bind("<F5>", self.save_canvas)
 
         self.window.mainloop()
 
@@ -93,8 +103,27 @@ class Paintk:
         self.line_brush = FALSE
         self.erase_brush = TRUE
 
-    def clear(self):
+    def clear(self, event):
         self.area_draw.delete("all")
+
+    def save(self):
+        x = self.window.winfo_rootx() + self.area_draw.winfo_rootx()
+        y = self.window.winfo_rooty() + self.area_draw.winfo_rooty()
+        x1 = self.window.winfo_rootx() + self.area_draw.winfo_width()
+        y1 = self.window.winfo_rooty() + self.area_draw.winfo_width()
+
+        img = pyscreenshot.grab(bbox=(x, y, x1, y1))
+        img.save("image.png", "png")
+
+    def save_canvas(self, event):
+        self.area_draw.postscript(file="circles.eps")
+        from PIL import Image
+        img = Image.open("circles.eps")
+        img.save("circles.png", "png")
+
+    def selected_color(self):
+        color = colorchooser.askcolor()
+        self.select_color(color[1])
 
 
 Paintk()
